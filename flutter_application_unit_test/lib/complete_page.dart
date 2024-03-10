@@ -5,28 +5,6 @@ import 'package:flutter_application_unit_test/main.dart';
 
 // ignore: must_be_immutable, camel_case_types
 class Complete_Page extends StatelessWidget {
-  String name;
-  String date;
-  String gender;
-  String phone;
-  String email;
-  String province;
-  String district;
-  String ward;
-  String detailedAddress;
-  Complete_Page({
-    Key? key,
-    required this.name,
-    required this.date,
-    required this.gender,
-    required this.phone,
-    required this.email,
-    required this.province,
-    required this.district,
-    required this.ward,
-    required this.detailedAddress,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,20 +29,6 @@ class Complete_Page extends StatelessWidget {
               'Hoàn thành',
               style: TextStyle(fontSize: 30),
             ),
-            // Column(
-            //   crossAxisAlignment: CrossAxisAlignment.start,
-            //   children: [
-            //     Text('Họ và tên: $name'),
-            //     Text('Ngày sinh: $date'),
-            //     Text('Giới tính: $gender'),
-            //     Text('Số điện thoại: $phone'),
-            //     Text('Email: $email'),
-            //     Text('Tỉnh/Thành: $province'),
-            //     Text('Quận/Huyện: $district'),
-            //     Text('Phường/Xã: $ward'),
-            //     Text('Địa chỉ chi tiết: $detailedAddress'),
-            //   ],
-            // ),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
               child: ElevatedButton(
