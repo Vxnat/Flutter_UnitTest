@@ -42,6 +42,11 @@ dependencies:
     google_nav_bar: ^5.0.6
     provider: ^6.1.2
     shared_preferences: ^2.2.2
+    like_button: ^2.0.5
+    firebase_auth: ^4.18.0
+    firebase_core: ^2.27.2
+    carousel_slider: ^4.2.1
+    cloud_firestore: ^4.15.10
 
 dev_dependencies:
     flutter_test:
@@ -67,6 +72,26 @@ flutter:
     # To add assets to your application, add an assets section, like this:
     assets:
         - assets/img/error_img.jpg
+        - assets/img/bear-svgrepo-com.png
+        - assets/img/crab-svgrepo-com.png
+        - assets/img/crocodile-svgrepo-com.png
+        - assets/img/cute-animals-svgrepo-com.png
+        - assets/img/dinosaur-svgrepo-com.png
+        - assets/img/elk-svgrepo-com.png
+        - assets/img/fox-svgrepo-com.png
+        - assets/img/hedgehog-svgrepo-com.png
+        - assets/img/jellyfish-svgrepo-com.png
+        - assets/img/lion-svgrepo-com.png
+        - assets/img/penguin-svgrepo-com.png
+        - assets/img/polar-bear-svgrepo-com.png
+        - assets/img/rabbit-svgrepo-com.png
+        - assets/img/raccoon-svgrepo-com.png
+        - assets/img/shrimp-svgrepo-com.png
+        - assets/img/squirrel-svgrepo-com.png
+        - assets/img/the-cow-svgrepo-com.png
+        - assets/img/turtle-svgrepo-com.png
+        - assets/img/whale-svgrepo-com.png
+        - assets/img/wild-boar-svgrepo-com.png
 
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/assets-and-images/#resolution-aware
