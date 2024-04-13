@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_get_api_news/extensions/extension_date.dart';
 import 'package:flutter_application_get_api_news/provider/list_provider.dart';
-import 'package:flutter_application_get_api_news/screens/discover_page.dart';
 import 'package:flutter_application_get_api_news/screens/read_page.dart';
+import 'package:flutter_application_get_api_news/screens/read_page_new_version.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,14 +17,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-  }
-
-  void tongleDarkMode() {
-    context.read<ListProvider>().isDarkMode =
-        !context.read<ListProvider>().isDarkMode;
-    context.read<ListProvider>().saveSettingLocal(
-        context.read<ListProvider>().isChangeHomeView,
-        context.read<ListProvider>().isDarkMode);
+    context.read<ListProvider>().loadDataLocal();
   }
 
   @override
@@ -39,10 +31,9 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Breaking News',
+                  'Breaking News ',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -51,19 +42,26 @@ class _HomePageState extends State<HomePage> {
                         : const Color.fromARGB(255, 236, 236, 236),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DiscoverPage(),
-                        ));
-                  },
-                  child: const Text(
-                    'View all',
-                    style: TextStyle(color: Colors.blue),
-                  ),
+                Icon(
+                  Icons.newspaper_rounded,
+                  size: 20,
+                  color: !context.read<ListProvider>().isDarkMode
+                      ? null
+                      : const Color.fromARGB(255, 236, 236, 236),
                 )
+                // GestureDetector(
+                //   onTap: () {
+                //     Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (context) => const DiscoverPage(),
+                //         ));
+                //   },
+                //   child: const Text(
+                //     'View all',
+                //     style: TextStyle(color: Colors.blue),
+                //   ),
+                // )
               ],
             ),
             Container(
@@ -109,9 +107,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Recommendation',
+                Text('Recommendation ',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -119,16 +116,22 @@ class _HomePageState extends State<HomePage> {
                           ? null
                           : const Color.fromARGB(255, 236, 236, 236),
                     )),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const DiscoverPage(),
-                          ));
-                    },
-                    child: const Text('View all',
-                        style: TextStyle(color: Colors.blue)))
+                Icon(
+                  Icons.library_books_rounded,
+                  color: !context.read<ListProvider>().isDarkMode
+                      ? null
+                      : const Color.fromARGB(255, 236, 236, 236),
+                )
+                // GestureDetector(
+                //     onTap: () {
+                //       Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //             builder: (context) => const DiscoverPage(),
+                //           ));
+                //     },
+                //     child: const Text('View all',
+                //         style: TextStyle(color: Colors.blue)))
               ],
             ),
             const SizedBox(
@@ -152,21 +155,24 @@ class _HomePageState extends State<HomePage> {
           initialPage: 1,
           autoPlay: true,
         ),
-        items: listDataSlider
+        items: context
+            .read<ListProvider>()
+            .listDataApi
+            .sublist(0, 10)
             .map((item) => Container(
                   child: GestureDetector(
                     onTap: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ReadPage(
-                              id: item['source']['id'],
+                            builder: (context) => ReadPageNewVersion(
                               title: item['title'],
                               author: item['author'],
                               name: item['source']['name'],
                               publishedAt: item['publishedAt'],
                               urlToImage: item['urlToImage'],
-                              content: item['content'],
+                              content: item['content'] +
+                                  'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.',
                             ),
                           ));
                     },
@@ -177,13 +183,8 @@ class _HomePageState extends State<HomePage> {
                         child: Stack(
                           children: <Widget>[
                             Hero(
-                              tag: 'location-img-${item['urlToImage']}',
-                              child: Image.network(
-                                item['urlToImage'],
-                                fit: BoxFit.cover,
-                                width: 1000.0,
-                              ),
-                            ),
+                                tag: 'location-img-${item['urlToImage']}',
+                                child: showImgNews(item, 1000, 250)),
                             Positioned(
                               top: 10,
                               left: 15,
@@ -205,8 +206,9 @@ class _HomePageState extends State<HomePage> {
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Color.fromARGB(200, 0, 0, 0),
-                                      Color.fromARGB(0, 0, 0, 0),
+                                      Color(0xCC000000),
+                                      Color(0x99000000),
+                                      Color(0x00000000),
                                     ],
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
@@ -318,26 +320,28 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ReadPage(
-                      id: itemSource['id'],
-                      title: item['title'],
-                      author: item['author'],
-                      name: itemSource['name'],
-                      publishedAt: item['publishedAt'],
-                      urlToImage: item['urlToImage'],
-                      content: item['content']),
+                  builder: (context) => ReadPageNewVersion(
+                    title: item['title'],
+                    author: item['author'],
+                    name: itemSource['name'],
+                    publishedAt: item['publishedAt'],
+                    urlToImage: item['urlToImage'],
+                    content: item['content'] +
+                        'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.',
+                  ),
                 ));
           },
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
             child: Row(children: [
               Hero(
-                  tag: 'location-img-${item['urlToImage']}',
-                  child: imageProvider(item)),
+                tag: 'location-img-${item['urlToImage']}',
+                child: showImgNews(item, 150, null),
+              ),
               const SizedBox(
                 width: 10,
               ),
-              Container(
+              SizedBox(
                 width: 260,
                 height: 150,
                 child: Column(
@@ -404,23 +408,34 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-CachedNetworkImage imageProvider(item) {
-  return CachedNetworkImage(
-    imageUrl: item['urlToImage'],
-    placeholder: (context, url) => const CircularProgressIndicator(),
-    errorWidget: (context, url, error) => Image.asset(
-      'img/error_img.jpg',
-      width: 150,
-      height: 150,
+ClipRRect showImgNews(item, double width, double? height) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(15),
+    child: SizedBox(
+      width: width,
+      height: height ?? 150,
+      child: Image.network(
+        item['urlToImage'],
+        fit: BoxFit.cover,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          } else {
+            return const CircularProgressIndicator(
+              color: Colors.black,
+            );
+          }
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(
+            'img/error_img.jpg',
+            width: 150,
+            height: 150,
+            fit: BoxFit.cover,
+          );
+        },
+      ),
     ),
-    imageBuilder: (context, imageProvider) {
-      return Container(
-        width: 150,
-        height: 150,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),
-      );
-    },
   );
 }

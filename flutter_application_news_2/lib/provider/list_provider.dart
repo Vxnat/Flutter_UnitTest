@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_get_api_news/auth/auth_service.dart';
 import 'package:flutter_application_get_api_news/modules/comment.dart';
 import 'package:flutter_application_get_api_news/modules/favorite.dart';
 import 'package:http/http.dart' as http;
@@ -32,20 +30,13 @@ class ListProvider extends ChangeNotifier {
     'img/whale-svgrepo-com.png',
     'img/wild-boar-svgrepo-com.png',
   ];
-  int count = 0;
   bool isAddNewNameArticle = false;
   bool isDarkMode = false;
-  bool isChangeHomeView = false;
   String currentNameSearch = 'All';
   String currentTitleSearch = '';
   List<Comment> listComment = [];
   List<dynamic> listDataApi = [];
   List<dynamic> listDataSlider = [];
-  List<dynamic> part1 = [];
-  List<dynamic> part2 = [];
-  List<dynamic> part3 = [];
-  List<dynamic> part4 = [];
-  List<dynamic> part5 = [];
   List<String> listNameArticle = [];
   List<dynamic> filteredList = [];
   final List<Favorite> _listFavorite = [];
@@ -71,12 +62,11 @@ class ListProvider extends ChangeNotifier {
           item['source']['name'].toString().toLowerCase())) {
         listNameArticle.add(item['source']['name']);
       }
-      item['source']['id'] = ++count;
       listArticle.add(item);
     }
     // Chuyển data sang listDataApi
     listDataApi = listArticle;
-    listDataSlider = listDataApi.sublist(0, 3);
+    listDataSlider = listDataApi.sublist(0, 10);
     // Data Api rỗng và chưa thêm các tên lựa chọn thì add thêm vào và ngược lại
     listDataApi.isNotEmpty && !isAddNewNameArticle
         ? listNameArticle.insert(0, 'All')
@@ -85,32 +75,10 @@ class ListProvider extends ChangeNotifier {
     !isAddNewNameArticle ? notifyListeners() : null;
     isAddNewNameArticle = true;
     loadDataSetting();
-    count = 0;
     return listArticle;
   }
 
-  void splitListDataApi(List<dynamic> listData) {
-    int length = listData.length;
-    int minPartLength = (length / 5).floor();
-    int remainder = length % 5;
-
-    part1 = listData.sublist(0, minPartLength + (remainder >= 1 ? 1 : 0));
-    part2 = listData.sublist(
-        part1.length, part1.length + minPartLength + (remainder >= 2 ? 1 : 0));
-    part3 = listData.sublist(part1.length + part2.length,
-        part1.length + part2.length + minPartLength + (remainder >= 3 ? 1 : 0));
-    part4 = listData.sublist(
-        part1.length + part2.length + part3.length,
-        part1.length +
-            part2.length +
-            part3.length +
-            minPartLength +
-            (remainder >= 4 ? 1 : 0));
-    part5 = listData
-        .sublist(part1.length + part2.length + part3.length + part4.length);
-  }
-
-  void filterDataWhenSearch(String value, bool isChangeHomeView) {
+  void filterDataWhenSearch(String value) {
     if (value.isEmpty) {
       // Nếu thanh tìm kiếm trống, hiển thị tất cả các mục
       filteredList = [];
@@ -121,10 +89,9 @@ class ListProvider extends ChangeNotifier {
                 item['source']['name'].toString().toLowerCase() ==
                 currentNameSearch.toLowerCase())
             .toList();
-        splitListDataApi(filteredList);
       }
     } else {
-      // Nếu thanh tìm kiếm có và phần Name vẫn chọn 1 cái
+      // Nếu thanh tìm kiếm không rỗng và phần Name vẫn chọn 1 cái
       if (currentNameSearch != 'All') {
         filteredList = listDataApi
             .where((item) =>
@@ -135,68 +102,62 @@ class ListProvider extends ChangeNotifier {
                 item['source']['name'].toString().toLowerCase() ==
                     currentNameSearch.toLowerCase())
             .toList();
-        splitListDataApi(filteredList);
       } else {
-        // Nếu thanh tìm kiếm có và phần Name vẫn chọn All
+        // Nếu thanh tìm kiếm khôbg rỗng và phần Name vẫn chọn All
         filteredList = listDataApi
             .where((item) => item['title']
                 .toString()
                 .toLowerCase()
                 .contains(value.toLowerCase()))
             .toList();
-        splitListDataApi(filteredList);
       }
     }
     notifyListeners();
   }
 
   void loadDataLocal() async {
-    // final localData = await SharedPreferences.getInstance();
-    // List<String>? listFavorite = localData.getStringList('listFavoriteLocal');
-    // List<String>? listComments = localData.getStringList('listCommentLocal');
-    // if (listFavorite != null) {
-    //   List<Favorite> newListFavorite = listFavorite
-    //       .map((itemString) => Favorite.fromString(itemString))
-    //       .toList();
-    //   _listFavorite.clear();
-    //   _listFavorite.addAll(newListFavorite);
-    // }
-    // if (listComments != null) {
-    //   List<Comment> newListComment = listComments
-    //       .map((itemString) => Comment.fromString(itemString))
-    //       .toList();
-    //   listComment.clear();
-    //   listComment.addAll(newListComment);
-    // }
+    final localData = await SharedPreferences.getInstance();
+    List<String>? listFavorite = localData.getStringList('listFavoriteLocal');
+    List<String>? listComments = localData.getStringList('listCommentLocal');
+    if (listFavorite != null) {
+      List<Favorite> newListFavorite = listFavorite
+          .map((itemString) => Favorite.fromString(itemString))
+          .toList();
+      _listFavorite.clear();
+      _listFavorite.addAll(newListFavorite);
+    }
+    if (listComments != null) {
+      List<Comment> newListComment = listComments
+          .map((itemString) => Comment.fromString(itemString))
+          .toList();
+      listComment.clear();
+      listComment.addAll(newListComment);
+    }
 
     notifyListeners();
   }
 
   void loadDataSetting() async {
     final localData = await SharedPreferences.getInstance();
-    isChangeHomeView = localData.getBool('isChangeHomeViewLocal') ?? false;
-    isChangeHomeView ? splitListDataApi(listDataApi) : null;
     isDarkMode = localData.getBool('isDarkModeLocal') ?? false;
   }
 
-  // void saveDataLocal() async {
-  //   final localData = await SharedPreferences.getInstance();
-  //   List<String> listFavoriteString =
-  //       listFavorite.map((item) => item.toString()).toList();
-  //   localData.setStringList('listFavoriteLocal', listFavoriteString);
-  //   List<String> listCommentString =
-  //       listComment.map((item) => item.toString()).toList();
-  //   localData.setStringList('listCommentLocal', listCommentString);
-  // }
-
-  void saveSettingLocal(bool isChangeHomeView, bool isDarkMode) async {
+  void saveDataLocal() async {
     final localData = await SharedPreferences.getInstance();
-    localData.setBool('isChangeHomeViewLocal', isChangeHomeView);
+    List<String> listFavoriteString =
+        listFavorite.map((item) => item.toString()).toList();
+    localData.setStringList('listFavoriteLocal', listFavoriteString);
+    List<String> listCommentString =
+        listComment.map((item) => item.toString()).toList();
+    localData.setStringList('listCommentLocal', listCommentString);
+  }
+
+  void saveSettingLocal() async {
+    final localData = await SharedPreferences.getInstance();
     localData.setBool('isDarkModeLocal', isDarkMode);
   }
 
   void addFavoriteItem(
-    int id,
     String title,
     String author,
     String name,
@@ -204,68 +165,52 @@ class ListProvider extends ChangeNotifier {
     String publishedAt,
     String content,
   ) {
-    listFavorite.add(Favorite(
-      id: id,
-      title: title,
-      author: author,
-      name: name,
-      urlToImage: urlToImage,
-      publishedAt: publishedAt,
-      content: content,
-    ));
-    List<Favorite> newList = listFavorite.reversed.toList();
-    listFavorite.clear();
-    listFavorite.addAll(newList);
-    final auth = AuthService();
-    User? user = FirebaseAuth.instance.currentUser!;
-    String idUser = user.email!.split('@')[0];
-    print(idUser);
-    auth.addNewFavoriteItem(
-        idUser,
-        id.toString(),
-        title.toString(),
-        author.toString(),
-        name.toString(),
-        urlToImage.toString(),
-        publishedAt.toString(),
-        content.toString());
-    // saveDataLocal();
+    listFavorite.insert(
+        0,
+        Favorite(
+          title: title,
+          author: author,
+          name: name,
+          urlToImage: urlToImage,
+          publishedAt: publishedAt,
+          content: content,
+        ));
+    saveDataLocal();
     notifyListeners();
   }
 
-  void removeFavoriteItem(int id) {
-    final auth = AuthService();
-    User? user = FirebaseAuth.instance.currentUser!;
-    String idUser = user.email!.split('@')[0];
-    auth.removeFavoriteItem(id.toString());
-    listFavorite.removeWhere((element) => element.id == id);
-    // saveDataLocal();
+  void removeFavoriteItem(String title) {
+    listFavorite.removeWhere((element) => element.title == title);
+    saveDataLocal();
     notifyListeners();
   }
 
-  bool isListContainItem(int id) {
-    return listFavorite.any((element) => element.id == id);
+  bool isListContainItem(String title) {
+    return listFavorite.any((element) => element.title == title);
   }
 
   void addCommentItem(
       String title, String content, String time, String avatarUrl) {
     listComment.add(Comment(
-        title: title, content: content, time: time, avatarUrl: avatarUrl));
-    // saveDataLocal();
+      title: title,
+      content: content,
+      time: time,
+      avatarUrl: avatarUrl,
+    ));
+    saveDataLocal();
     notifyListeners();
   }
 
-  List<Comment> listLegal(String title) {
-    List<Comment> newList =
-        listComment.where((element) => element.title == title).toList();
-    notifyListeners();
-    return newList.reversed.toList();
-  }
+  // List<Comment> listLegal(String id) {
+  //   List<Comment> newList =
+  //       listComment.where((element) => element.id == id).toList();
+  //   notifyListeners();
+  //   return newList.reversed.toList();
+  // }
 
   String getRandomAvatarUrl() {
     Random random = Random();
-    int index = random.nextInt(
-        listAvatarUrl.length); // Sinh số ngẫu nhiên từ 0 đến chiều dài của list
-    return listAvatarUrl[index]; // Trả về giá trị ngẫu nhiên từ list
+    int index = random.nextInt(listAvatarUrl.length);
+    return listAvatarUrl[index];
   }
 }

@@ -59,4 +59,14 @@ class ExtensionDate {
       return 'vừa xong';
     }
   }
+
+  static String formatTime(DateTime time) {
+    String hour = time.hour.toString().padLeft(2, '0');
+    String minute = time.minute.toString().padLeft(2, '0');
+    String day = time.day.toString().padLeft(2, '0');
+    String month = time.month.toString().padLeft(2, '0');
+    String year = time.year.toString();
+
+    return '$hour:$minute  $day/$month/$year';
+  }
 }

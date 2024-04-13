@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_application_get_api_news/auth/auth_service.dart';
-import 'package:flutter_application_get_api_news/extensions/extension_date.dart';
 import 'package:flutter_application_get_api_news/provider/list_provider.dart';
+import 'package:flutter_application_get_api_news/screens/home_page.dart';
+import 'package:flutter_application_get_api_news/screens/read_page_new_version.dart';
 import 'package:flutter_application_get_api_news/screens/read_page.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +23,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   void initState() {
     super.initState();
+    context.read<ListProvider>().loadDataSetting();
   }
 
   @override
@@ -32,25 +31,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
     super.dispose();
   }
 
-  void tongleHomeView() {
-    context.read<ListProvider>().isChangeHomeView =
-        !context.read<ListProvider>().isChangeHomeView;
-    if (context.read<ListProvider>().isChangeHomeView) {
-      context
-          .read<ListProvider>()
-          .splitListDataApi(context.read<ListProvider>().listDataApi);
-      context.read<ListProvider>().currentTitleSearch = '';
-      context.read<ListProvider>().currentNameSearch = 'All';
-      selectedIndex = 0;
-    }
-    context.read<ListProvider>().saveSettingLocal(
-        context.read<ListProvider>().isChangeHomeView,
-        context.read<ListProvider>().isDarkMode);
-  }
-
   @override
   Widget build(BuildContext context) {
-    // print(context.read<ListProvider>().listDataApi.)
     return Scaffold(
       body: Container(
         color: !context.read<ListProvider>().isDarkMode
@@ -90,18 +72,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       isSearching = false;
                       context.read<ListProvider>().currentTitleSearch = '';
                       context.read<ListProvider>().filterDataWhenSearch(
-                          value,
-                          !context.read<ListProvider>().isChangeHomeView
-                              ? false
-                              : true);
+                            value,
+                          );
                     } else {
                       isSearching = true;
                       context.read<ListProvider>().currentTitleSearch = value;
                       context.read<ListProvider>().filterDataWhenSearch(
-                          value,
-                          !context.read<ListProvider>().isChangeHomeView
-                              ? false
-                              : true);
+                            value,
+                          );
                     }
                   }
                 },
@@ -130,57 +108,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ),
             ),
             buildHorizontalListView(),
-            if (!context.read<ListProvider>().isChangeHomeView)
-              Expanded(child: getDataFromAPI([]))
-            else if (context.read<ListProvider>().part1.isEmpty)
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 300),
-                  child: Text(
-                    'Not Found!',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: !context.read<ListProvider>().isDarkMode
-                          ? null
-                          : Colors.white,
-                    ),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: List.generate(5, (index) {
-                      late List<dynamic> currentPart;
-                      switch (index + 1) {
-                        case 1:
-                          currentPart = context.read<ListProvider>().part1;
-                          break;
-                        case 2:
-                          currentPart = context.read<ListProvider>().part2;
-                          break;
-                        case 3:
-                          currentPart = context.read<ListProvider>().part3;
-                          break;
-                        case 4:
-                          currentPart = context.read<ListProvider>().part4;
-                          break;
-                        case 5:
-                          currentPart = context.read<ListProvider>().part5;
-                          break;
-                        default:
-                      }
-                      return Container(
-                        height: 140,
-                        margin: const EdgeInsets.only(bottom: 5),
-                        child: getDataFromAPI(currentPart),
-                      );
-                    }),
-                  ),
-                ),
-              ),
+            Expanded(child: getDataFromAPI())
           ],
         ),
       ),
@@ -210,10 +138,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     context.read<ListProvider>().currentNameSearch =
                         context.read<ListProvider>().listNameArticle[index];
                     context.read<ListProvider>().filterDataWhenSearch(
-                        context.read<ListProvider>().currentTitleSearch,
-                        !context.read<ListProvider>().isChangeHomeView
-                            ? false
-                            : true);
+                          context.read<ListProvider>().currentTitleSearch,
+                        );
                     isBusy = true;
                     isShowNotFound = false;
                   } else {
@@ -224,8 +150,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
                         .isEmpty) {
                       isSearching = false;
                       isShowNotFound = false;
-                      context.read<ListProvider>().splitListDataApi(
-                          context.read<ListProvider>().listDataApi);
                     } else {
                       // Khi lựa chọn ALL , thanh Search không rỗng
                       isSearching = true;
@@ -233,10 +157,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     }
                     context.read<ListProvider>().currentNameSearch = 'All';
                     context.read<ListProvider>().filterDataWhenSearch(
-                        context.read<ListProvider>().currentTitleSearch,
-                        !context.read<ListProvider>().isChangeHomeView
-                            ? false
-                            : true);
+                          context.read<ListProvider>().currentTitleSearch,
+                        );
                     isBusy = true;
                   }
                 });
@@ -267,7 +189,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  FutureBuilder<dynamic> getDataFromAPI(List<dynamic> listData) {
+  FutureBuilder<dynamic> getDataFromAPI() {
     return FutureBuilder(
       future: context.read<ListProvider>().getDataApi(),
       builder: (context, snapshot) {
@@ -316,74 +238,57 @@ class _DiscoverPageState extends State<DiscoverPage> {
               // Khi mọi thứ bình thường
               isBusy = false; // Chua xu li dc khi chuyen sang che do xem ngang
               isShowNotFound = false;
-              return listDataFromApi(listData);
+              return listDataFromApi();
             }
         }
       },
     );
   }
 
-  ListView listDataFromApi(List<dynamic> listData) {
+  ListView listDataFromApi() {
     var watchListProvider = context.watch<ListProvider>();
     return ListView.builder(
       // isSearching : Thanh tìm kiếm đang có kí tự
       // context.read<ListProvider>().currentNameSearch : Phần button list view được chọn ngoài All
-      scrollDirection: !context.read<ListProvider>().isChangeHomeView
-          ? Axis.vertical
-          : Axis.horizontal,
-      itemCount: !context.read<ListProvider>().isChangeHomeView
-          ? isSearching ||
-                  context.read<ListProvider>().currentNameSearch != 'All'
+      itemCount:
+          isSearching || context.read<ListProvider>().currentNameSearch != 'All'
               ? context.read<ListProvider>().filteredList.length
-              : watchListProvider.listDataApi.length
-          : isSearching ||
-                  context.read<ListProvider>().currentNameSearch != 'All'
-              ? listData.length
-              : listData.length,
+              : watchListProvider.listDataApi.length,
       itemBuilder: (context, index) {
-        final item = !context.read<ListProvider>().isChangeHomeView
-            ? isSearching ||
-                    context.read<ListProvider>().currentNameSearch != 'All'
-                ? context.read<ListProvider>().filteredList[index]
-                : watchListProvider.listDataApi[index]
-            : isSearching ||
-                    context.read<ListProvider>().currentNameSearch != 'All'
-                ? listData[index]
-                : listData[index];
+        final item = isSearching ||
+                context.read<ListProvider>().currentNameSearch != 'All'
+            ? context.read<ListProvider>().filteredList[index]
+            : watchListProvider.listDataApi[index];
         final itemSource = item['source'];
         return InkWell(
           onTap: () {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ReadPage(
-                      id: itemSource['id'],
-                      title: item['title'],
-                      author: item['author'],
-                      name: itemSource['name'],
-                      publishedAt: item['publishedAt'],
-                      urlToImage: item['urlToImage'],
-                      content: item['content']),
+                  builder: (context) => ReadPageNewVersion(
+                    title: item['title'],
+                    author: item['author'],
+                    name: itemSource['name'],
+                    publishedAt: item['publishedAt'],
+                    urlToImage: item['urlToImage'],
+                    content: item['content'] +
+                        'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains. On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.',
+                  ),
                 ));
           },
           child: Container(
-            width: !context.read<ListProvider>().isChangeHomeView
-                ? double.infinity
-                : null,
+            width: double.infinity,
             margin: const EdgeInsets.symmetric(vertical: 10),
             child: Row(children: [
               Hero(
                   tag: 'location-img-${item['urlToImage']}',
-                  child: imageProvider(item)),
+                  child: showImgNews(item, 150, null)),
               const SizedBox(
                 width: 5,
               ),
-              Container(
+              SizedBox(
                 width: 260,
-                height: 120,
-                margin: !context.read<ListProvider>().isChangeHomeView
-                    ? null
-                    : const EdgeInsets.only(right: 20),
+                height: 150,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.max,
@@ -442,29 +347,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
               )
             ]),
           ),
-        );
-      },
-    );
-  }
-
-  CachedNetworkImage imageProvider(item) {
-    return CachedNetworkImage(
-      imageUrl: item['urlToImage'],
-      placeholder: (context, url) => const CircularProgressIndicator(
-        color: Colors.black,
-      ),
-      errorWidget: (context, url, error) => Image.asset(
-        'img/error_img.jpg',
-        width: 120,
-        height: 120,
-      ),
-      imageBuilder: (context, imageProvider) {
-        return Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),
         );
       },
     );

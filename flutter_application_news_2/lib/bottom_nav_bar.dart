@@ -15,8 +15,7 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
-
+  int selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
     const DiscoverPage(),
@@ -34,7 +33,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     setState(() {
       context.read<ListProvider>().currentNameSearch = 'All';
       context.read<ListProvider>().currentTitleSearch = '';
-      _selectedIndex = index;
+      selectedIndex = index;
     });
   }
 
@@ -42,7 +41,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _widgetOptions.elementAt(selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -69,7 +68,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
             label: 'Profile',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: selectedIndex,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
